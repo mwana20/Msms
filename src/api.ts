@@ -1,203 +1,180 @@
-const API_BASE = typeof window !== 'undefined' ? '/api' : 'http://localhost:3000/api';
-
-let memoryToken: string | null = null;
+import { ROLE_PERSONAS } from './types';
 
 export function getAuthToken(): string | null {
   if (typeof window !== 'undefined' && window.localStorage) {
     return localStorage.getItem('mwanaweika_token');
   }
-  return memoryToken;
+  return null;
 }
 
 export function setAuthToken(token: string): void {
   if (typeof window !== 'undefined' && window.localStorage) {
     localStorage.setItem('mwanaweika_token', token);
   }
-  memoryToken = token;
 }
 
 export function clearAuthToken(): void {
   if (typeof window !== 'undefined' && window.localStorage) {
     localStorage.removeItem('mwanaweika_token');
   }
-  memoryToken = null;
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = getAuthToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
-  };
+const SCHOOL_ID = 'sch-mwanaweika';
+const SCHOOL_NAME = 'Mwanaweika School';
+const CURRENCY = 'UGX';
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(errorBody.error || `HTTP ${res.status}`);
-  }
-
-  return res.json();
+function usernameForRole(role: string): string {
+  return role.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
-export const api = {
-  // Auth
-  login: (credentials: { username: string; password?: string }) =>
-    request<{ token: string; user: any }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    }),
+export const MOCK_USERS: any[] = ROLE_PERSONAS.map((p, idx) => ({
+  id: `usr-${idx + 1}`,
+  school_id: SCHOOL_ID,
+  username: usernameForRole(p.role),
+  email: `${usernameForRole(p.role)}@mwanaweika.sc.ug`,
+  full_name: p.name,
+  role: p.role,
+  assigned_context: p.assignedContext,
+  assigned_class_id: undefined,
+  assigned_subjects: undefined,
+  is_active: 1,
+  school_name: SCHOOL_NAME,
+  currency: CURRENCY,
+}));
+
+const SUPER_ADMIN = MOCK_USERS.find((u) => u.role === 'Super Administrator')!;
+
+function findUserByUsername(username: string): any | null {
+  const u = (username || '').trim().toLowerCase();
+  if (!u) return null;
+  if (u === 'admin' || u === 'superadmin') return SUPER_ADMIN;
+  return (
+    MOCK_USERS.find((x) => x.username.toLowerCase() === u || x.email.toLowerCase() === u) ||
+    null
+  );
+}
+
+function makeToken(): string {
+  return `mock-token-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+const students: any[] = [];
+const staff: any[] = [];
+const auditLogs: any[] = [
+  {
+    id: 'log-init',
+    user_id: SUPER_ADMIN.id,
+    user_name: SUPER_ADMIN.full_name,
+    user_role: SUPER_ADMIN.role,
+    action: 'SYSTEM_INITIALIZATION',
+    module: 'Core',
+    details: 'Mwanaweika School Management System running in frontend-only demo mode.',
+    ip_address: '127.0.0.1',
+    created_at: new Date().toISOString(),
+  },
+];
+
+const MOCK_DASHBOARD = {
+  metrics: {
+    totalStudents: 6,
+    totalStaff: 15,
+    presentToday: 5,
+    absentToday: 1,
+    attendanceRate: 83,
+    feesCollected: 1750000,
+    feesPending: 900000,
+    recentExpenses: 3050000,
+    borrowedBooks: 0,
+    transportCount: 0,
+    boardersCount: 3,
+    clinicVisitsToday: 1,
+    counselingSessionsCount: 1,
+    stockItemsCount: 3,
+  },
+  activeAnnouncements: [
+    {
+      id: 'ann-01',
+      title: 'Term I 2026 Consultative Parents-Teachers Conference',
+      content: 'We invite all parents to our consultative conference on Saturday 28th March 2026 in the Main Hall.',
+      target_audience: 'Parents',
+      published_at: new Date().toISOString(),
+      expiry_date: '2026-03-29',
+    },
+  ],
+  recentPayments: [],
+  classEnrollments: [],
+};
+
+const MOCK_ACADEMICS = { classes: [], subjects: [], assessments: [] };
+
+export const api: any = {
+  login: async (credentials: { username: string; password?: string }) => {
+    const user = findUserByUsername(credentials.username);
+    if (!user) {
+      throw new Error('Invalid credentials. Please verify your username and password.');
+    }
+    const token = makeToken();
+    setAuthToken(token);
+    return { token, user };
+  },
 
   switchRole: async (targetRole: string) => {
-    const res = await request<{ token: string; user: any }>('/auth/switch-role', {
-      method: 'POST',
-      body: JSON.stringify({ targetRole }),
-    });
-    if (res.token) {
-      setAuthToken(res.token);
-    }
-    return res;
+    const user = MOCK_USERS.find((u) => u.role === targetRole) || SUPER_ADMIN;
+    const token = makeToken();
+    setAuthToken(token);
+    return { token, user };
   },
 
-  // Dashboard
-  getDashboard: () => request<any>('/dashboard/summary'),
-
-  // Students
-  getStudents: (params: { class_id?: string; search?: string; status?: string } = {}) => {
-    const query = new URLSearchParams();
-    if (params.class_id) query.append('class_id', params.class_id);
-    if (params.search) query.append('search', params.search);
-    if (params.status) query.append('status', params.status);
-    return request<any[]>(`/students?${query.toString()}`);
+  getDashboard: async () => MOCK_DASHBOARD,
+  getStudents: async (_params: any = {}) => students,
+  getStudentDetails: async (_id: string) => (students[0] ?? null),
+  admitStudent: async (data: any) => {
+    const id = `std-${Date.now()}`;
+    const record = { id, admission_number: `MWK/2026/${students.length + 1}`, ...data };
+    students.push(record);
+    return { success: true, admission_number: record.admission_number, id };
   },
 
-  getStudentDetails: (id: string) => request<any>(`/students/${id}`),
+  getAttendance: async (_params: any) => ({ records: [] }),
+  submitAttendance: async (_data: any) => ({ success: true, message: 'Attendance saved (demo mode).' }),
 
-  admitStudent: (data: any) =>
-    request<any>('/students', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  getAcademicsConfig: async () => MOCK_ACADEMICS,
+  getMarks: async (_params: any) => [],
+  saveMarks: async (_data: any) => ({ success: true, message: 'Marks saved (demo mode).' }),
+  getReportCard: async (_studentId: string) => ({}),
 
-  // Attendance
-  getAttendance: (params: { class_id: string; stream_id?: string; date?: string }) => {
-    const query = new URLSearchParams();
-    query.append('class_id', params.class_id);
-    if (params.stream_id) query.append('stream_id', params.stream_id);
-    if (params.date) query.append('date', params.date);
-    return request<any>(`/attendance?${query.toString()}`);
+  getFinanceOverview: async () => ({ invoices: [], payments: [], expenses: [] }),
+  recordPayment: async (data: any) => ({
+    success: true,
+    receiptNumber: `RCP-${Date.now()}`,
+    ...data,
+  }),
+  recordExpense: async (data: any) => ({ success: true, id: `exp-${Date.now()}`, ...data }),
+
+  getOperationsData: async () => ({ libraryBooks: [], issues: [], inventory: [], transport: [], hostels: [], timetables: [] }),
+  borrowBook: async (data: any) => ({ success: true, issue_id: `iss-${Date.now()}`, ...data }),
+  returnBook: async (_issue_id: string) => ({ success: true, message: 'Book returned (demo mode).' }),
+  addInventoryItem: async (data: any) => ({ success: true, id: `inv-${Date.now()}`, ...data }),
+
+  getHealthRecords: async () => [],
+  recordClinicVisit: async (data: any) => ({ success: true, id: `cln-${Date.now()}`, ...data }),
+
+  getCounselingSessions: async () => [],
+  recordCounselingSession: async (data: any) => ({ success: true, id: `cns-${Date.now()}`, ...data }),
+
+  getStaff: async () => staff,
+  getHRStaffDirectory: async () => ({ staff, attendance: [] }),
+  addStaff: async (data: any) => {
+    const record = { id: `stf-${Date.now()}`, staff_number: `STF/MWK/${staff.length + 1}`, ...data };
+    staff.push(record);
+    return { success: true, id: record.id, staff_number: record.staff_number };
   },
 
-  submitAttendance: (data: { class_id: string; stream_id?: string; date: string; records: any[] }) =>
-    request<any>('/attendance/submit', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  getParentPortalData: async () => ({}),
 
-  // Academics
-  getAcademicsConfig: () => request<any>('/academics/config'),
-
-  getMarks: (params: { assessment_id: string; class_id: string; subject_id: string }) => {
-    const query = new URLSearchParams();
-    query.append('assessment_id', params.assessment_id);
-    query.append('class_id', params.class_id);
-    query.append('subject_id', params.subject_id);
-    return request<any[]>(`/academics/marks?${query.toString()}`);
-  },
-
-  saveMarks: (data: { assessment_id: string; class_id: string; subject_id: string; marks: any[] }) =>
-    request<any>('/academics/marks/save', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  getReportCard: (studentId: string) => request<any>(`/academics/report-card/${studentId}`),
-
-  // Finance
-  getFinanceOverview: () => request<any>('/finance/overview'),
-
-  recordPayment: (data: {
-    invoice_id: string;
-    student_id: string;
-    amount: number;
-    payment_method: string;
-    reference_code?: string;
-    notes?: string;
-  }) =>
-    request<any>('/finance/payments', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  recordExpense: (data: any) =>
-    request<any>('/finance/expenses', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  // Operations
-  getOperationsData: () => request<any>('/operations/data'),
-
-  borrowBook: (data: { book_id: string; student_id: string; due_days?: number }) =>
-    request<any>('/operations/library/borrow', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  returnBook: (issue_id: string) =>
-    request<any>('/operations/library/return', {
-      method: 'POST',
-      body: JSON.stringify({ issue_id }),
-    }),
-
-  addInventoryItem: (data: any) =>
-    request<any>('/operations/inventory/add', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  // Health & Sickbay (School Nurse)
-  getHealthRecords: () => request<any[]>('/health/records'),
-  recordClinicVisit: (data: any) =>
-    request<any>('/health/records', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  // Counseling (Rev. Sister Florence)
-  getCounselingSessions: () => request<any[]>('/counseling/sessions'),
-  recordCounselingSession: (data: any) =>
-    request<any>('/counseling/sessions', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  // Staff & HR
-  getStaff: () => request<any[]>('/staff'),
-  getHRStaffDirectory: () => request<any>('/hr/staff'),
-  addStaff: (data: any) =>
-    request<any>('/staff', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  // Parent Portal
-  getParentPortalData: () => request<any>('/parent/portal-data'),
-
-  // Settings & Audit
-  getSchoolSettings: () => request<any>('/school/settings'),
-  updateSchoolSettings: (data: any) =>
-    request<any>('/school/settings', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
-
-  getAuditLogs: () => request<any[]>('/audit-logs'),
+  getSchoolSettings: async () => ({}),
+  updateSchoolSettings: async (data: any) => ({ success: true, ...data }),
+  getAuditLogs: async () => auditLogs,
 };
+
+export default api;

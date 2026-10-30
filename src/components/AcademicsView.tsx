@@ -45,7 +45,7 @@ export const AcademicsView: React.FC<AcademicsViewProps> = ({
       setMarksList(data);
 
       const initialMap: Record<string, { score: string; comment?: string }> = {};
-      data.forEach((m) => {
+      data.forEach((m: any) => {
         initialMap[m.student_id] = {
           score: m.score !== null && m.score !== undefined ? String(m.score) : '',
           comment: m.teacher_comment || '',
