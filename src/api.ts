@@ -29,16 +29,16 @@ function usernameForRole(role: string): string {
 
 export const MOCK_USERS: any[] = ROLE_PERSONAS.map((p, idx) => ({
   id: `usr-${idx + 1}`,
-  school_id: SCHOOL_ID,
   username: usernameForRole(p.role),
   email: `${usernameForRole(p.role)}@mwanaweika.sc.ug`,
-  full_name: p.name,
+  fullName: p.name,
   role: p.role,
-  assigned_context: p.assignedContext,
-  assigned_class_id: undefined,
-  assigned_subjects: undefined,
-  is_active: 1,
-  school_name: SCHOOL_NAME,
+  assignedContext: p.assignedContext,
+  assignedClassId: undefined,
+  assignedSubjects: undefined,
+  isActive: 1,
+  schoolId: SCHOOL_ID,
+  schoolName: SCHOOL_NAME,
   currency: CURRENCY,
 }));
 
