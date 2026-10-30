@@ -1,0 +1,6 @@
+{
+  "name": "Mwanaweika School Management System",
+  "description": "Comprehensive School Information and Operations System for Mwanaweika School, Mukono, Uganda",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

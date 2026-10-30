@@ -1,0 +1,2712 @@
+# PROJECT: MWANAWEIKA SCHOOL MANAGEMENT SYSTEM (SMS) — MASTER DEVELOPMENT SPECIFICATION
+
+## 1. PROJECT OVERVIEW
+
+Act as a senior full-stack software architect, education technology consultant, database architect, cybersecurity engineer, UI/UX designer and experienced software developer.
+
+Design and develop a complete, professional, secure and production-oriented **School Management System for Mwanaweika School, Mukono, Uganda**.
+
+This is a real-world school software project, not a demonstration dashboard.
+
+Build an integrated school information and operations platform that connects school management, administrators, teachers, bursars, parents, students and other authorized staff.
+
+The system must manage the complete school lifecycle, including:
+
+- Student inquiries and admissions
+- Student registration and enrollment
+- Guardians and emergency contacts
+- Academic years, terms, classes and streams
+- Subjects and teacher assignments
+- Student and staff attendance
+- Timetables and lesson scheduling
+- Lesson planning and curriculum coverage
+- Competency-based assessment where applicable
+- Examinations, marks and report cards
+- School fees, invoicing, payments and accounting
+- Parent and student portals
+- Homework and assignments
+- Library operations
+- Transport and boarding
+- Staff and human resource management
+- Discipline, safeguarding and student welfare
+- Inventory, procurement and asset management
+- School communication and notifications
+- Reports, analytics and regulatory data exports
+- School settings, user management and audit trails
+
+The final system must provide real backend integration, persistent database storage, secure authentication, role-based permissions, validated forms, functional buttons, reliable workflows and accurate reporting.
+
+**Do not build:**
+- A hospital management system.
+- A school marketing website.
+- A static dashboard.
+- A frontend-only prototype.
+- A collection of unrelated pages with no connected workflows.
+- A system that uses fabricated statistics to appear operational.
+
+The objective is to build software that a real school can configure, test, deploy and use to manage its daily operations.
+
+---
+
+## 2. TECHNOLOGY STACK AND ARCHITECTURE
+
+Use the following stack unless the existing project has a compatible, well-structured alternative.
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React icons
+- React Router
+- TanStack Query for server state
+- React Hook Form
+- Zod validation
+- Reusable and maintainable components
+
+### Backend
+- Node.js
+- Express.js
+- TypeScript
+- REST API architecture
+- PostgreSQL
+- Prisma ORM
+- Secure authentication and authorization
+- Centralized error handling
+
+### Infrastructure
+- Supabase PostgreSQL or a properly configured PostgreSQL instance
+- Render for backend deployment
+- Netlify for frontend deployment
+- GitHub for source control
+- Environment variables for configuration and secrets
+- Private file storage for confidential documents
+
+### Architecture requirements
+
+Use a clear separation of concerns:
+
+- Frontend presentation layer
+- Backend API layer
+- Business logic and service layer
+- Database access layer
+- Authentication and authorization layer
+- File storage layer
+- Notification and integration layer
+
+Organize the code into understandable modules.
+
+Do not place the entire application in a single large component or server file.
+
+Use reusable services, controllers, middleware, validation schemas, database models and shared types.
+
+All sensitive business rules must be enforced by the backend, not just the frontend.
+
+If Supabase is used, never expose the service-role key or database credentials to the browser.
+
+Use database migrations. Do not rely on manually changing production database tables.
+
+---
+
+## 3. SCHOOL CONFIGURATION AND LOCALIZATION
+
+The application must be configurable to the actual school structure.
+
+Initial school profile:
+
+- School name: Mwanaweika School
+- Location: Mukono, Uganda
+- Country: Uganda
+- Default currency: UGX
+- Default time zone: Africa/Kampala
+- Default date display: DD/MM/YYYY
+- Primary language: English
+
+Allow administrators to configure:
+
+- School name and logo
+- School address and contact information
+- School email and telephone
+- School ownership and category
+- School type
+- Day or boarding status
+- Academic structure
+- Classes and streams
+- School opening and closing dates
+- Terms or semesters
+- Grading systems
+- Fee structures
+- Admission number format
+- Invoice and receipt numbering
+- Report card templates
+- Notification preferences
+- School calendar
+- Departments
+- Campuses, if applicable
+
+Do not hardcode Primary One to Primary Seven or Senior One to Senior Six as the only possible structure.
+
+Allow the school to create, rename, deactivate and configure its own levels, classes, streams and academic programmes.
+
+Support future expansion to multiple campuses.
+
+If the platform is later offered to more than one school, implement proper school-level data isolation using a school identifier on applicable records and backend-enforced tenant permissions.
+
+Never assume that hiding another school's records in the frontend provides tenant security.
+
+---
+
+## 4. USER ROLES AND PERMISSIONS
+
+Build a secure role-based access control system.
+
+Required roles:
+
+1. Super Administrator
+2. School Administrator
+3. Head Teacher / Principal
+4. Deputy Head Teacher
+5. Director / School Owner
+6. Bursar / Accounts Officer
+7. Cashier
+8. Class Teacher
+9. Subject Teacher
+10. Academic Registrar
+11. Admissions Officer
+12. Human Resource Officer
+13. Librarian
+14. Transport Officer
+15. Storekeeper / Inventory Manager
+16. Boarding / Hostel Warden
+17. School Nurse or authorized health staff
+18. Counselor / Welfare Officer
+19. Parent / Guardian
+20. Student
+21. Other configurable non-teaching staff
+
+### Permission requirements
+
+Implement granular permissions, not just role names.
+
+Examples:
+
+- Administrators can manage school settings and authorized users.
+- Head teachers can review school-wide academic and attendance information.
+- Deputy head teachers can manage assigned academic and operational responsibilities.
+- Bursars can manage fee structures, invoices, payments and financial reports.
+- Cashiers can record authorized payments but cannot alter fee structures or approve their own refunds.
+- Class teachers can manage attendance and records for their assigned classes.
+- Subject teachers can manage assessments for assigned subjects and classes.
+- Admissions officers can process applications and enrollment.
+- Librarians can manage books and borrowing.
+- Transport officers can manage vehicles, routes and student allocations.
+- Parents can access only the records of children legally linked to their verified accounts.
+- Students can access only their own authorized information.
+- Health, counseling and safeguarding records must have specially restricted permissions.
+
+### Permission controls
+
+Support permissions such as:
+
+- View
+- Create
+- Edit
+- Approve
+- Publish
+- Delete or archive
+- Export
+- Print
+- Manage settings
+
+Allow administrators to assign users to roles and, where necessary, grant limited additional permissions.
+
+Apply permissions to individual API operations and sensitive records.
+
+Never depend on hiding frontend buttons for security.
+
+Record important permission changes in the audit log.
+
+---
+
+## 5. AUTHENTICATION AND ACCOUNT MANAGEMENT
+
+Implement secure authentication.
+
+Required features:
+
+- Login with email or username and password
+- Secure logout
+- Forgot password
+- Password reset
+- Change password
+- Account activation and deactivation
+- Session expiration
+- Login history
+- Failed login monitoring
+- Secure password hashing
+- Protected routes
+- Session revocation
+- Optional multi-factor authentication
+- User profile management
+- Account recovery procedures
+
+Use secure authentication practices appropriate to the architecture.
+
+Do not store plain-text passwords.
+
+Apply rate limiting to authentication endpoints.
+
+Use secure cookies and appropriate session protections if using cookie-based authentication.
+
+If using token-based authentication, use a secure token lifecycle, short-lived access tokens and a safe refresh mechanism.
+
+Do not put sensitive authentication tokens in insecure browser storage.
+
+Provide an initial administrator setup process that does not leave a public default administrator password in production.
+
+---
+
+## 6. ADMINISTRATOR DASHBOARD
+
+Create a professional administrative dashboard.
+
+Display real database-driven information:
+
+- Total enrolled students
+- Active students
+- New admissions this term
+- Students currently absent
+- Attendance rate today
+- Teachers present
+- Classes scheduled today
+- Pending fee balances
+- Fees collected today
+- Fees collected this term
+- Pending fee reminders
+- Library books currently borrowed
+- Overdue library books
+- Students using school transport
+- Hostel occupancy, if applicable
+- Pending admission applications
+- Outstanding administrative tasks
+- Active school announcements
+
+Include meaningful analytics:
+
+- Student enrollment trends
+- Attendance trends
+- Academic performance trends
+- Fee collection trends
+- Class-level attendance comparisons
+- Payment method distribution
+- Admission trends
+- Staff attendance trends
+- Inventory alerts
+- Recent school activities
+
+Provide filters:
+
+- Today
+- This week
+- This month
+- Current term
+- Academic year
+- Custom date range
+
+All dashboard figures must come from actual database records.
+
+Show clear loading, empty and error states.
+
+If no records exist, show an honest empty state rather than invented statistics.
+
+Ensure each role has a dashboard appropriate to its responsibilities.
+
+---
+
+## 7. ACADEMIC STRUCTURE AND SCHOOL CALENDAR
+
+Build a configurable academic administration module.
+
+Manage:
+
+- Academic years
+- Terms or semesters
+- Classes or grades
+- Class streams
+- Subjects
+- Subject combinations
+- Departments
+- Class teachers
+- Subject teachers
+- Class-subject assignments
+- Examination periods
+- School calendar
+- Public holidays
+- School events
+- Opening and closing dates
+- Academic deadlines
+
+Example school structure:
+
+- Academic year: 2026
+- Terms: Term I, Term II and Term III
+- Classes: Primary One to Primary Seven, Senior One to Senior Six, or another configured structure
+- Streams: A, B, C or other school-defined streams
+- Subjects: Mathematics, English, Science, Social Studies, ICT and others
+
+Allow authorized administrators to create, update, deactivate and archive academic structures.
+
+Prevent the deletion of academic years, classes, subjects and other records that already have historical student data.
+
+Maintain historical records when students change classes, streams or academic years.
+
+Do not overwrite previous academic history during promotion.
+
+---
+
+## 8. STUDENT ADMISSION AND ENROLLMENT LIFECYCLE
+
+Build a complete admissions module, not just a student registration form.
+
+### Admission stages
+
+1. Inquiry or prospective student registration
+2. Application submission
+3. Application review
+4. Document verification
+5. Interview or assessment, if required by the school
+6. Application approval or rejection
+7. Offer letter generation
+8. Fee assessment and payment, where required
+9. Student enrollment
+10. Class and stream allocation
+11. Guardian account linking
+12. Student account activation, where applicable
+
+Support:
+
+- Pending applications
+- Approved applications
+- Rejected applications
+- Waitlisted applicants
+- Incomplete applications
+- Deferred admissions
+- Enrolled students
+
+Record who approved or rejected an application and when.
+
+### Student information
+
+Capture only information that the school has a legitimate reason to collect.
+
+Possible fields:
+
+- Unique admission number
+- First name
+- Middle name
+- Last name
+- Date of birth
+- Gender, where required
+- Nationality
+- Home address
+- District
+- Previous school
+- Admission date
+- Class applied for
+- Student photograph, optional
+- Emergency information
+- Relevant medical information, restricted
+- Special learning support information, restricted
+- Required supporting documents
+
+Support learner identifiers relevant to Uganda's education data requirements, including the Learner Identification Number (LIN) where available and applicable.
+
+Capture NIN or other identity details only where lawful, necessary and appropriately protected.
+
+Do not invent an EMIS number, LIN or other official identifier.
+
+### Student records
+
+Allow authorized users to:
+
+- Search students by name, admission number, class or guardian
+- View student profiles
+- View academic history
+- View attendance history
+- View assessment results
+- View fee statements
+- View authorized welfare records
+- View library history
+- View transport allocation
+- Print student profiles
+- Transfer students between classes and streams
+- Record transfers to another school
+- Record withdrawals
+- Record graduation or completion
+- Merge duplicate records through a controlled, audited process
+
+Each student must have a permanent unique school admission number.
+
+Prevent duplicate student records through appropriate validation and duplicate detection.
+
+### Enrollment history
+
+Maintain a separate enrollment history.
+
+Do not overwrite a student's previous class, academic year, stream or enrollment status.
+
+Record promotion, repetition, transfer, withdrawal and re-enrollment as historical events.
+
+---
+
+## 9. PARENT AND GUARDIAN MANAGEMENT
+
+Build a proper guardian relationship system.
+
+A student may have multiple guardians, and one guardian may be linked to multiple students.
+
+Capture:
+
+- Guardian full name
+- Relationship to student
+- Telephone number
+- Alternative telephone number
+- Email address
+- Physical address
+- Emergency contact information
+- Authorized collection or pickup permission
+- Preferred communication channel
+- Verification status
+
+Support:
+
+- Guardian registration
+- Guardian verification
+- Multiple children under one account
+- Multiple authorized guardians per child
+- Updating guardian information
+- Revoking access
+- Recording custody or access restrictions where legally required
+
+Do not grant access to a child's records based only on knowing the admission number, name or phone number.
+
+Implement a verification process controlled by authorized school staff.
+
+Maintain records of guardian access approval and revocation.
+
+Do not expose confidential information about one guardian to another guardian unless the school has verified that access is appropriate.
+
+---
+
+## 10. ATTENDANCE MANAGEMENT
+
+Build a complete attendance system.
+
+### Student attendance
+
+Support:
+
+- Daily class attendance
+- Subject or lesson attendance, where required
+- Present
+- Absent
+- Late
+- Excused
+- Approved leave
+- Arrival time
+- Departure time
+- Absence reason
+- Attendance correction requests
+
+### Workflow
+
+1. Authorized teacher opens the assigned class register.
+2. The teacher selects the date and relevant session.
+3. The teacher marks student attendance.
+4. The teacher reviews and submits the register.
+5. The system saves the attendance record.
+6. Authorized staff can review corrections.
+7. Attendance reports update automatically.
+8. Parent notifications are sent if configured.
+
+Prevent duplicate attendance records for the same student, class and attendance session.
+
+Do not silently delete attendance records.
+
+Maintain an auditable correction process showing the original value, corrected value, reason, user and timestamp.
+
+### Attendance reports
+
+Generate reports by:
+
+- Student
+- Class
+- Stream
+- Subject
+- Teacher
+- Date
+- Week
+- Term
+- Academic year
+
+Calculate attendance percentages accurately.
+
+Identify repeated absence and lateness patterns.
+
+Allow authorized staff to review students requiring follow-up.
+
+### Staff attendance and instructional time
+
+Include staff attendance features:
+
+- Clock-in and clock-out
+- Late arrival
+- Absence
+- Leave
+- Reason for absence
+- Duty attendance
+- Substitution records
+- Staff attendance reports
+
+Where the school requires it, support lesson delivery monitoring:
+
+- Scheduled lesson
+- Assigned teacher
+- Actual lesson delivered
+- Missed lesson
+- Substitute teacher
+- Reason for missed lesson
+- Syllabus coverage
+
+Design these features to support internal monitoring of instructional time.
+
+Do not claim that the system is integrated with Uganda's TELA platform unless an authorized and verified integration is actually implemented.
+
+### Offline support
+
+If feasible, support temporary offline attendance entry.
+
+Offline records must remain clearly marked as pending synchronization until successfully saved to the server.
+
+Handle duplicate submissions and synchronization conflicts safely.
+
+Never silently overwrite an attendance record during synchronization.
+
+---
+
+## 11. TIMETABLE AND SCHEDULING
+
+Build a functional timetable management module.
+
+Features:
+
+- Create class timetables
+- Create teacher timetables
+- Assign subjects
+- Assign teachers
+- Assign classrooms
+- Configure lesson durations
+- Support single lessons and double lessons
+- Configure breaks
+- Configure school days
+- Schedule examination periods
+- Manage timetable changes
+- Manage teacher substitutions
+- View daily and weekly timetables
+- Print timetables
+- Allow authorized parents and students to view relevant timetables
+
+### Conflict detection
+
+Prevent:
+
+- A teacher being scheduled in two places at the same time
+- A class being assigned two lessons simultaneously
+- A room being double-booked
+- Invalid timetable overlaps
+
+If an authorized user overrides a conflict, require a reason and record the override in the audit log.
+
+---
+
+## 12. LESSON PLANNING AND CURRICULUM MANAGEMENT
+
+Add a teaching and curriculum management module.
+
+Features:
+
+- Subject syllabus records
+- Topics and subtopics
+- Learning objectives
+- Learning outcomes
+- Lesson plans
+- Teaching materials
+- Lesson dates
+- Assigned classes
+- Teacher records
+- Lesson completion status
+- Syllabus coverage
+- Teaching progress reports
+
+Allow teachers to create lesson plans for assigned classes and subjects.
+
+Allow academic administrators to review lesson plans and monitor syllabus coverage.
+
+Where relevant, support Uganda's competency-based curriculum approach.
+
+Make curriculum structures configurable because requirements can differ by education level and may change.
+
+Do not hardcode a single assessment or curriculum framework for every class.
+
+---
+
+## 13. ASSESSMENTS, EXAMINATIONS AND REPORT CARDS
+
+Build a flexible assessment and examination module.
+
+### Assessment types
+
+Support configurable assessment categories, including:
+
+- Class work
+- Homework
+- Quizzes
+- Tests
+- Projects
+- Activities of Integration (AoI), where applicable
+- Mid-term examinations
+- End-of-term examinations
+- Practical assessments
+- Oral assessments
+- Other school-defined assessments
+
+### Competency-based assessment support
+
+Where applicable, support:
+
+- Learning outcomes
+- Competency descriptors
+- Assessment rubrics
+- Performance levels
+- Formative assessment
+- Summative assessment
+- Project work
+- Activities of Integration
+- Teacher observations
+- Subject achievement records
+- Assessment evidence
+- Moderation and approval
+
+Do not assume that a percentage score alone adequately represents every competency-based assessment.
+
+Make assessment structures configurable by class, level, subject, academic year and curriculum.
+
+Ensure the system can be updated when official education or examination requirements change.
+
+### Examination management
+
+Allow authorized users to:
+
+- Create examination periods
+- Create assessments by class and subject
+- Set maximum marks
+- Configure weights
+- Assign teachers
+- Record marks
+- Review marks
+- Approve marks
+- Publish results
+- Generate assessment sheets
+- Generate examination reports
+
+### Mark entry
+
+Subject teachers should only enter marks for assigned subjects and classes.
+
+Validate marks against maximum possible scores.
+
+Prevent unauthorized changes after results have been approved or published.
+
+Provide an authorized correction and re-approval workflow.
+
+### Grading
+
+Support configurable:
+
+- Percentage grading
+- Letter grades
+- Grade points
+- Divisions, where applicable
+- Competency descriptors
+- School-specific grading scales
+
+Do not hardcode grading rules across every level.
+
+### Report cards
+
+Generate professional report cards containing applicable information:
+
+- Student name
+- Admission number
+- Class and stream
+- Academic year
+- Term
+- Subjects
+- Assessment results
+- Subject achievement
+- Grades or competency descriptors
+- Total marks, where applicable
+- Average, where applicable
+- Teacher remarks
+- Head teacher remarks
+- Attendance summary
+- Other school-approved information
+
+Allow report card templates to be configured.
+
+Support authorized approval and publication.
+
+Parents and students must only see results after authorized release.
+
+### Student ranking and promotion
+
+Make class ranking optional and configurable.
+
+Do not assume that ranking is required or appropriate for every curriculum or class.
+
+Promotion must be an authorized decision based on configured school policies.
+
+Never automatically promote students without approval.
+
+Maintain a complete academic history.
+
+---
+
+## 14. FEES, ACCOUNTING AND FINANCIAL MANAGEMENT
+
+Build a proper financial management module, not merely a page for recording payments.
+
+Use UGX as the default currency.
+
+### Fee structures
+
+Allow authorized users to configure fees by:
+
+- Academic year
+- Term
+- Class
+- Stream
+- Day or boarding status
+- Student category
+- Other approved conditions
+
+Support configurable charges such as:
+
+- Tuition
+- Examination fees
+- Development fees
+- Transport
+- Boarding
+- Meals
+- Uniforms
+- Books
+- Other approved school charges
+
+### Invoicing
+
+Features:
+
+- Generate student invoices
+- Generate family statements where appropriate
+- Support termly, monthly and custom billing
+- Add invoice items
+- Apply authorized discounts
+- Apply scholarships and bursaries
+- Track due dates
+- Track outstanding balances
+- Print and export invoices
+- Maintain invoice history
+
+### Payments
+
+Support:
+
+- Cash
+- MTN Mobile Money
+- Airtel Money
+- Bank transfer
+- Card
+- Cheque
+- Other configurable payment methods
+
+Features:
+
+- Full payments
+- Partial payments
+- Payment references
+- Payment allocation
+- Receipts
+- Student statements
+- Family account statements
+- Outstanding balances
+- Credit balances
+- Overpayments
+- Authorized refunds
+- Payment reversals
+- Cancelled invoices
+- Reconciliation
+
+Do not claim that an electronic payment has succeeded unless a real provider confirms it.
+
+For mobile money integration, use a properly configured provider and verified server-side transaction callbacks.
+
+If credentials are unavailable, clearly mark the integration as awaiting configuration.
+
+### Accounting controls
+
+Add:
+
+- Income records
+- Expense records
+- Expense categories
+- Petty cash
+- Cashbook
+- Multiple bank accounts
+- Bank reconciliation
+- Supplier payments
+- Purchase expenses
+- Budgets
+- Financial periods
+- Financial approval workflows
+- Cashier transaction summaries
+- Financial audit reports
+
+### Financial approval rules
+
+Separate responsibilities where possible.
+
+Examples:
+
+- A cashier records a payment.
+- A bursar reviews financial records.
+- An authorized officer approves a refund.
+- An administrator controls financial permissions.
+
+Prevent users from approving their own sensitive transactions where separation of duties is required.
+
+### Transaction integrity
+
+Financial transactions must not be silently edited or deleted.
+
+Use controlled reversals, adjustments and refunds.
+
+Maintain original transaction history.
+
+Every transaction must have a unique reference.
+
+Use database transactions to ensure that payment recording, allocation, receipt generation and balance updates succeed or fail together.
+
+Prevent duplicate payment processing.
+
+### Financial reports
+
+Generate:
+
+- Daily collections
+- Weekly collections
+- Monthly collections
+- Termly collections
+- Outstanding balances
+- Fee arrears
+- Fee defaulters
+- Payment method reports
+- Discounts and bursaries
+- Refund reports
+- Expense reports
+- Cashbook reports
+- Bank reconciliation reports
+- Cashier summaries
+- Class-level fee collection
+- Financial statements
+
+Restrict financial information to authorized users.
+
+---
+
+## 15. PARENT PORTAL
+
+Create a separate, responsive parent portal.
+
+Parents should be able to:
+
+- View their linked children's profiles
+- View attendance
+- View timetables
+- View assignments
+- View assessment results
+- View report cards after publication
+- View fee invoices
+- View fee statements
+- View outstanding balances
+- View payment history
+- Download authorized receipts
+- Receive school announcements
+- Receive absence notifications
+- Receive fee reminders
+- View school calendar events
+- Request meetings where enabled
+- Communicate with authorized school staff where enabled
+- Update permitted contact details
+
+Support one guardian account linked to multiple children.
+
+The portal must enforce guardian verification and relationship-based access.
+
+Do not allow a parent to access another student's information by changing a URL or API identifier.
+
+---
+
+## 16. STUDENT PORTAL
+
+Create a separate student portal.
+
+Students should be able to:
+
+- View their own profile
+- View their timetable
+- View attendance
+- View assignments
+- Submit assignments where enabled
+- View results after authorized publication
+- View report cards
+- View school announcements
+- View library borrowing history
+- View transport details where applicable
+- View school calendar events
+
+Students must never access another student's personal records.
+
+Apply age-appropriate access restrictions and school policies.
+
+---
+
+## 17. HOMEWORK AND ASSIGNMENTS
+
+Build an assignment management module.
+
+Teachers can:
+
+- Create assignments
+- Select class and subject
+- Add title and instructions
+- Set issue date
+- Set due date
+- Set maximum marks
+- Attach learning materials
+- View submissions
+- Record marks
+- Add feedback
+
+Students can:
+
+- View assigned work
+- View deadlines
+- Submit work online where enabled
+- View submission status
+- View teacher feedback where released
+
+Parents can view relevant assignment information where enabled.
+
+Generate assignment completion reports.
+
+Validate uploaded file types and sizes.
+
+---
+
+## 18. LIBRARY MANAGEMENT
+
+Build a functional school library module.
+
+Manage:
+
+- Book catalogue
+- Book titles
+- Authors
+- ISBN
+- Categories
+- Publishers
+- Publication years
+- Physical copies
+- Shelf locations
+- Book condition
+- Availability
+
+Features:
+
+- Register books
+- Register individual copies
+- Issue books
+- Return books
+- Renew borrowing
+- Track overdue books
+- Track lost or damaged books
+- Manage borrowing rules
+- Configure fines where appropriate
+- Generate borrowing history
+- Generate overdue reports
+- Generate popular books reports
+- Send overdue reminders where configured
+
+Track individual book copies, not just book titles.
+
+Prevent issuing copies that are unavailable, damaged or already borrowed.
+
+---
+
+## 19. TRANSPORT MANAGEMENT
+
+Build a school transport module.
+
+Features:
+
+- Register vehicles
+- Vehicle registration details
+- Vehicle capacity
+- Vehicle status
+- Driver records
+- Attendant records
+- Route management
+- Route stops
+- Student allocations
+- Transport fee records
+- Vehicle maintenance records
+- Route lists
+- Transport reports
+- Emergency contact information
+
+Prevent allocating more students than the configured vehicle capacity.
+
+Support route changes and historical allocation records.
+
+Allow future GPS tracking integration.
+
+Do not claim GPS tracking is active without a real provider and verified integration.
+
+Restrict sensitive transport and pickup information.
+
+---
+
+## 20. HOSTEL AND BOARDING MANAGEMENT
+
+If the school operates boarding facilities, support:
+
+- Hostel registration
+- Hostel blocks
+- Hostel rooms
+- Beds
+- Occupancy
+- Student allocation
+- Boarding fees
+- Check-in
+- Check-out
+- Room changes
+- Warden assignments
+- Emergency contacts
+- Boarding attendance
+- Hostel reports
+
+Use separate database entities for classrooms and hostel rooms.
+
+Do not use one generic "rooms" table to represent unrelated facilities without a clear and correct relationship.
+
+Prevent two students from being allocated to the same bed.
+
+Maintain historical hostel allocations.
+
+---
+
+## 21. DISCIPLINE, SAFEGUARDING AND STUDENT WELFARE
+
+Build a confidential discipline and student welfare module.
+
+### Discipline
+
+Support:
+
+- Incident registration
+- Date and time
+- Location
+- Incident category
+- Description
+- Reporting staff member
+- Persons involved
+- Action taken
+- Parent communication
+- Follow-up
+- Resolution status
+
+### Student welfare and safeguarding
+
+Support restricted records for:
+
+- Welfare concerns
+- Safeguarding referrals
+- Authorized counseling notes
+- Follow-up actions
+- Responsible staff
+- Referral status
+- Confidential communication
+
+Restrict these records to specifically authorized personnel.
+
+Do not make sensitive welfare or disciplinary notes visible to all teachers or general administrators.
+
+Do not expose sensitive incident information in ordinary notifications.
+
+Maintain detailed access logs.
+
+Provide a controlled process for correcting inaccurate records.
+
+---
+
+## 22. STUDENT HEALTH RECORDS
+
+Create a restricted health information module where the school has a legitimate need to maintain relevant records.
+
+Possible information:
+
+- Relevant allergies
+- Emergency medical information
+- Authorized medication records
+- Relevant health incidents
+- Emergency contacts
+- Parent communication
+
+Health information must be accessible only to authorized personnel.
+
+Do not collect unnecessary medical details.
+
+Do not expose health records through general student profiles or unrestricted reports.
+
+---
+
+## 23. STAFF AND HUMAN RESOURCE MANAGEMENT
+
+Build a staff management module.
+
+Staff information:
+
+- Staff identification number
+- Full name
+- Contact details
+- Department
+- Job title
+- Teaching subjects
+- Professional registration information, where applicable
+- Employment date
+- Employment status
+- Assigned roles
+- Emergency contact
+
+Features:
+
+- Add and update staff
+- Assign classes
+- Assign subjects
+- Assign departments
+- Manage staff attendance
+- Manage leave
+- Manage duty schedules
+- Record substitutions
+- View staff profiles
+- Activate and deactivate accounts
+- Generate staff reports
+
+### Payroll
+
+Design the system so payroll can be added as a separate, restricted module.
+
+Do not expose salary information to ordinary staff.
+
+If payroll is implemented, include controlled salary records, deductions, allowances, approvals, payslips and payroll reports.
+
+---
+
+## 24. DEPARTMENT MANAGEMENT
+
+Create configurable school departments.
+
+Example departments:
+
+- Administration
+- Academics
+- Early Years
+- Primary
+- Secondary
+- Science
+- Mathematics
+- Languages
+- Humanities
+- ICT
+- Accounts
+- Library
+- Transport
+- Human Resources
+- Support Staff
+
+Allow authorized administrators to create, update, deactivate and assign department heads.
+
+Assign staff, teachers and relevant subjects to departments.
+
+---
+
+## 25. INVENTORY, PROCUREMENT AND ASSET MANAGEMENT
+
+Build a proper inventory and procurement module.
+
+### Inventory categories
+
+- Stationery
+- Textbooks
+- Cleaning materials
+- Furniture
+- Sports equipment
+- Laboratory equipment
+- ICT equipment
+- Food supplies, where applicable
+- Uniforms
+- Other school supplies
+
+### Inventory operations
+
+- Product registration
+- Categories
+- Units of measurement
+- Suppliers
+- Purchase requests
+- Purchase orders
+- Goods received
+- Stock adjustments
+- Stock issues
+- Stock returns
+- Reorder levels
+- Expiry tracking
+- Stock movement history
+- Inventory valuation
+- Low-stock alerts
+- Supplier reports
+- Purchase reports
+
+### Asset management
+
+Track durable assets separately from consumable stock.
+
+Examples:
+
+- Desks
+- Computers
+- Printers
+- Laboratory equipment
+- Vehicles
+- Furniture
+- School buildings and facilities
+
+Record:
+
+- Asset identification number
+- Purchase date
+- Acquisition cost
+- Location
+- Assigned department
+- Condition
+- Responsible person
+- Maintenance history
+- Disposal status
+
+Every stock or asset movement must record the responsible user and timestamp.
+
+Use transaction-safe stock updates.
+
+Prevent stock quantities from becoming negative unless an explicitly authorized adjustment workflow allows it.
+
+---
+
+## 26. SCHOOL FACILITIES AND MAINTENANCE
+
+Create a facilities management module.
+
+Manage:
+
+- Classrooms
+- Laboratories
+- Library
+- Offices
+- Dormitories
+- Sanitation facilities
+- Sports facilities
+- Kitchens
+- School land and buildings
+- Other school facilities
+
+Support:
+
+- Facility registration
+- Facility capacity
+- Current condition
+- Assigned department
+- Inspection records
+- Maintenance requests
+- Work orders
+- Responsible personnel
+- Maintenance costs
+- Completion status
+- Maintenance history
+
+Use separate entities for different facility types where their data and workflows differ.
+
+---
+
+## 27. SCHOOL EVENTS AND COMMUNICATION
+
+Build a school communication and calendar module.
+
+Support:
+
+- School announcements
+- Class notices
+- Parent meetings
+- Staff meetings
+- Examination dates
+- Sports events
+- School trips
+- Holidays
+- Opening and closing dates
+- Assignment deadlines
+- Boarding dates
+- Emergency announcements
+
+Features:
+
+- Create announcements
+- Target specific classes
+- Target guardians
+- Target staff
+- Target students
+- Set publication dates
+- Set expiry dates
+- Attach documents
+- Track read status where appropriate
+
+### Communication channels
+
+Support configurable:
+
+- In-app notifications
+- Email
+- SMS
+- Future messaging integrations
+
+Do not claim that SMS or email delivery is operational unless the provider is configured and delivery status is properly handled.
+
+Support multiple verified guardians and their communication preferences.
+
+Sensitive safeguarding or health information must never be included in ordinary bulk messages.
+
+---
+
+## 28. REPORTING AND ANALYTICS
+
+Build a central reporting centre.
+
+Required reports:
+
+### Admissions and enrollment
+- Applications
+- Admission outcomes
+- New admissions
+- Enrollment by class
+- Enrollment by stream
+- Enrollment by academic year
+- Transfers and withdrawals
+
+### Attendance
+- Student attendance
+- Class attendance
+- Subject attendance
+- Staff attendance
+- Repeated absence
+- Late arrivals
+
+### Academics
+- Subject performance
+- Class performance
+- Assessment results
+- Competency achievement
+- Report card summaries
+- Examination performance
+- Syllabus coverage
+
+### Finance
+- Fee collection
+- Outstanding fees
+- Payment methods
+- Refunds
+- Expenses
+- Cashbook
+- Bank reconciliation
+
+### Operations
+- Library borrowing
+- Overdue books
+- Transport allocation
+- Hostel occupancy
+- Discipline summaries
+- Inventory
+- Procurement
+- Asset maintenance
+
+### Human resources
+- Staff records
+- Staff attendance
+- Leave
+- Department staffing
+
+Support filters by:
+
+- Academic year
+- Term
+- Date range
+- Class
+- Stream
+- Subject
+- Department
+- Status
+
+Provide PDF and Excel export where appropriate.
+
+Ensure exported reports follow the same permission rules as on-screen reports.
+
+Do not allow unauthorized users to export confidential student or financial information.
+
+---
+
+## 29. UGANDA EDUCATION DATA AND REGULATORY READINESS
+
+Design the system with Uganda's education environment in mind.
+
+### EMIS readiness
+
+Provide configurable fields and export capabilities that can support relevant Ministry of Education and Sports Education Management Information System (EMIS) data requirements.
+
+Consider:
+
+- School identification and profile information
+- School ownership and category
+- Learner information
+- Learner Identification Number (LIN), where available
+- Staff information
+- School facilities
+- Infrastructure
+- Enrollment
+- Attendance
+- Other applicable school census information
+
+Provide configurable data exports and validation reports.
+
+Do not claim direct EMIS integration unless an authorized, documented and technically verified integration exists.
+
+Do not invent official identifiers or assume that an export format is officially accepted without validation against current requirements.
+
+### UNEB and NCDC readiness
+
+Design assessment and reporting modules to accommodate applicable curriculum and examination requirements.
+
+Allow configuration changes when official assessment guidance changes.
+
+Support competency-based assessment where applicable.
+
+Do not claim UNEB certification or official approval.
+
+Do not hardcode a single assessment model for all school levels.
+
+### TELA readiness
+
+Internal attendance and instructional time monitoring may be supported.
+
+Do not claim connection to the Ministry's TELA platform without a verified authorized integration.
+
+### Compliance review
+
+Before using real student records, the school must review the current applicable legal and regulatory requirements.
+
+Document assumptions and identify integrations that require official authorization.
+
+---
+
+## 30. DOCUMENT AND FILE MANAGEMENT
+
+Build a secure document management module.
+
+Support documents such as:
+
+- Admission documents
+- Birth certificates
+- Previous school reports
+- Transfer letters
+- Student photographs
+- Staff documents
+- Academic reports
+- Financial documents
+- Procurement documents
+- School policies
+- Other authorized records
+
+Requirements:
+
+- Secure file uploads
+- File type validation
+- File size restrictions
+- Private storage
+- Access control
+- Document categories
+- Document ownership
+- Upload timestamps
+- Download history
+- Version history where appropriate
+- Expiry dates where relevant
+
+Do not store sensitive files in publicly accessible folders.
+
+Use short-lived signed download links or an equivalent secure access mechanism.
+
+Validate file content and type rather than trusting file extensions alone.
+
+---
+
+## 31. PRINTING AND DOCUMENT GENERATION
+
+Generate professional school documents using a consistent Mwanaweika School design.
+
+Required documents:
+
+- Admission application
+- Admission letter
+- Student profile
+- Class list
+- Attendance register
+- Staff attendance report
+- Timetable
+- Assessment sheet
+- Mark sheet
+- Report card
+- Terminal report
+- Fee invoice
+- Fee statement
+- Payment receipt
+- Refund document
+- Library borrowing slip
+- Transport route list
+- Hostel occupancy report
+- Inventory report
+- Purchase order
+- Financial report
+
+Each document should include applicable details:
+
+- School name
+- School logo
+- Document title
+- Reference number
+- Date
+- Student or staff information
+- Academic year or term
+- Authorized staff details
+- Relevant approval status
+
+Documents must be printer-friendly and support PDF generation.
+
+Do not expose internal identifiers or confidential data unnecessarily.
+
+---
+
+## 32. NOTIFICATION SYSTEM
+
+Create a central notification service.
+
+Examples:
+
+- New admission application
+- Admission approval
+- Student absence
+- Late arrival
+- New assignment
+- Assignment deadline
+- Results released
+- Fee invoice generated
+- Payment received
+- Fee balance reminder
+- Library book due
+- Library book overdue
+- Transport route update
+- School announcement
+- Meeting invitation
+- Maintenance request
+- Low inventory
+- Staff leave approval
+
+Allow users to:
+
+- View notifications
+- Mark notifications as read
+- View notification history
+- Configure permitted preferences
+
+Only show notifications relevant to the user's role and responsibilities.
+
+Implement notification delivery status where external channels are used.
+
+Avoid sending duplicate notifications when a background job retries.
+
+---
+
+## 33. DATABASE DESIGN
+
+Create a normalized relational PostgreSQL database.
+
+Use Prisma models and proper migrations.
+
+At minimum, consider the following entities and relationships.
+
+### Identity and access
+- Schools
+- Campuses
+- Users
+- Roles
+- Permissions
+- Role permissions
+- User roles
+- User sessions
+- Login history
+- Audit logs
+
+### School configuration
+- School settings
+- Academic years
+- Terms
+- Classes
+- Streams
+- Subjects
+- Departments
+- School calendar
+- School events
+- Facilities
+
+### Admissions and student records
+- Admission applications
+- Application documents
+- Students
+- Learner identifiers
+- Guardians
+- Student guardians
+- Guardian verifications
+- Enrollments
+- Student transfers
+- Student withdrawals
+- Student promotions
+- Student documents
+- Consent records
+
+### Attendance
+- Student attendance
+- Attendance sessions
+- Attendance correction requests
+- Staff attendance
+- Staff leave
+- Lesson delivery
+- Teacher substitutions
+
+### Academics
+- Teacher assignments
+- Class subjects
+- Timetables
+- Timetable slots
+- Lesson plans
+- Syllabus topics
+- Learning outcomes
+- Assessments
+- Assessment types
+- Assessment rubrics
+- Marks
+- Assessment approvals
+- Report cards
+- Report card publication records
+
+### Finance
+- Fee structures
+- Fee structure items
+- Student invoices
+- Invoice items
+- Payments
+- Payment allocations
+- Receipts
+- Discounts
+- Scholarships
+- Bursaries
+- Refunds
+- Payment reversals
+- Expenses
+- Expense categories
+- Cashbooks
+- Bank accounts
+- Bank transactions
+- Bank reconciliations
+- Budgets
+- Suppliers
+- Financial approvals
+
+### Parent and student services
+- Assignments
+- Assignment submissions
+- Parent messages
+- Notifications
+- Notification preferences
+- Meeting requests
+
+### Library
+- Books
+- Book copies
+- Book categories
+- Book issues
+- Book returns
+- Fines
+
+### Transport and boarding
+- Vehicles
+- Drivers
+- Transport attendants
+- Routes
+- Route stops
+- Student transport allocations
+- Hostels
+- Hostel rooms
+- Beds
+- Hostel allocations
+
+### Welfare and health
+- Discipline incidents
+- Safeguarding cases
+- Welfare records
+- Student health records
+- Health incidents
+- Restricted access records
+
+### Staff and operations
+- Staff
+- Staff departments
+- Staff assignments
+- Inventory items
+- Inventory categories
+- Stock movements
+- Purchase requests
+- Purchase orders
+- Goods received
+- Assets
+- Maintenance records
+- Document files
+- Data export jobs
+
+### Database requirements
+
+Implement:
+
+- Primary keys
+- Foreign keys
+- Unique constraints
+- Appropriate indexes
+- Referential integrity
+- Proper decimal precision for money
+- Appropriate timestamps
+- Time zone consistency
+- Soft deletion only where appropriate
+- Historical records
+- Database transactions
+- Audit fields
+- Data validation constraints
+
+Use `school_id` and campus ownership on relevant records if supporting multiple schools or campuses.
+
+Enforce tenant isolation in backend queries and database access policies where appropriate.
+
+Do not use one generic table for unrelated entities simply to reduce the number of tables.
+
+For example, distinguish classrooms from hostel rooms.
+
+Never permanently delete important historical financial or academic records through ordinary user actions.
+
+---
+
+## 34. BACKEND API DESIGN
+
+Develop a structured REST API organized by module.
+
+Example routes:
+
+- `/api/auth`
+- `/api/users`
+- `/api/roles`
+- `/api/permissions`
+- `/api/schools`
+- `/api/settings`
+- `/api/campuses`
+- `/api/staff`
+- `/api/departments`
+- `/api/academic-years`
+- `/api/terms`
+- `/api/classes`
+- `/api/streams`
+- `/api/subjects`
+- `/api/admissions`
+- `/api/students`
+- `/api/guardians`
+- `/api/enrollments`
+- `/api/attendance`
+- `/api/staff-attendance`
+- `/api/timetables`
+- `/api/lesson-plans`
+- `/api/assessments`
+- `/api/marks`
+- `/api/report-cards`
+- `/api/assignments`
+- `/api/fees`
+- `/api/invoices`
+- `/api/payments`
+- `/api/receipts`
+- `/api/accounting`
+- `/api/library`
+- `/api/transport`
+- `/api/hostels`
+- `/api/discipline`
+- `/api/welfare`
+- `/api/health-records`
+- `/api/inventory`
+- `/api/procurement`
+- `/api/assets`
+- `/api/facilities`
+- `/api/reports`
+- `/api/notifications`
+- `/api/documents`
+- `/api/audit-logs`
+- `/api/exports`
+
+Implement:
+
+- Correct HTTP methods
+- Consistent response formats
+- Appropriate status codes
+- Request validation
+- Authentication middleware
+- Authorization middleware
+- Pagination
+- Search
+- Filtering
+- Sorting
+- Centralized error handling
+- API documentation
+- Health-check endpoint
+
+Create `/api/health` to verify application status and database connectivity without exposing secrets or student data.
+
+Use database transactions for critical operations such as:
+
+- Student enrollment
+- Student promotion
+- Fee invoicing
+- Payment allocation
+- Payment reversal
+- Refunds
+- Library borrowing
+- Stock deduction
+- Other multi-step operations
+
+Prevent duplicate requests from creating duplicate financial transactions or records.
+
+Use idempotency controls for payment callbacks and other operations that may be retried.
+
+---
+
+## 35. REQUIRED USER INTERFACE PAGES
+
+Create separate functional pages. Do not put the entire application on one dashboard or a single long page.
+
+### Authentication
+- Login
+- Forgot Password
+- Reset Password
+- Account Setup
+
+### Administration
+- Main Dashboard
+- User Management
+- Roles and Permissions
+- School Settings
+- Campus Settings
+- Audit Logs
+
+### Students and admissions
+- Admissions Dashboard
+- Applications
+- Application Details
+- Admit Student
+- Student List
+- Student Profile
+- Guardian Management
+- Enrollment History
+- Transfers
+- Student Promotion
+- Withdrawals
+
+### Academics
+- Academic Years
+- Terms
+- Classes
+- Streams
+- Subjects
+- Departments
+- Teacher Assignments
+- Lesson Plans
+- Curriculum Coverage
+- Timetables
+- Timetable Calendar
+- Assessments
+- Marks Entry
+- Assessment Approval
+- Report Cards
+- Result Publication
+
+### Attendance
+- Student Attendance
+- Class Registers
+- Attendance Corrections
+- Attendance Reports
+- Staff Attendance
+- Staff Leave
+- Lesson Delivery Monitoring
+
+### Finance
+- Fee Structures
+- Invoices
+- Payments
+- Receipts
+- Student Statements
+- Family Statements
+- Discounts and Bursaries
+- Refunds
+- Expenses
+- Cashbook
+- Bank Accounts
+- Reconciliation
+- Financial Reports
+
+### Parent portal
+- Parent Dashboard
+- My Children
+- Child Profile
+- Attendance
+- Timetable
+- Assignments
+- Results
+- Report Cards
+- Fees
+- Payments
+- Announcements
+- Meeting Requests
+
+### Student portal
+- Student Dashboard
+- My Profile
+- Timetable
+- Attendance
+- Assignments
+- Submissions
+- Results
+- Report Cards
+- Library
+- Announcements
+
+### Operations
+- Library
+- Book Catalogue
+- Book Copies
+- Book Issues and Returns
+- Transport
+- Vehicles
+- Routes and Stops
+- Student Transport Allocation
+- Hostels
+- Hostel Rooms and Beds
+- Hostel Allocation
+- Inventory
+- Procurement
+- Suppliers
+- Assets
+- Facilities
+- Maintenance
+
+### Staff and welfare
+- Staff Management
+- Staff Profiles
+- Departments
+- Discipline
+- Safeguarding
+- Student Welfare
+- Restricted Health Records
+
+### General
+- School Calendar
+- Events
+- Announcements
+- Notifications
+- Reports and Analytics
+- Document Management
+- User Profile
+
+Each page must have real functionality appropriate to its role.
+
+Do not create menu links that lead to blank pages or unrelated screens.
+
+---
+
+## 36. UI/UX DESIGN REQUIREMENTS
+
+Build a professional school administration interface.
+
+### Brand direction
+
+- School: Mwanaweika School
+- Primary color: Deep academic blue
+- Secondary color: Professional green or teal
+- Background: White and very light grey
+- Text: Dark navy and charcoal
+
+### Design expectations
+
+- Professional desktop dashboard
+- Responsive tablet and mobile layouts
+- Collapsible sidebar
+- Clear navigation hierarchy
+- Professional top navigation
+- Notification center
+- User profile menu
+- Global search
+- Data tables
+- Pagination
+- Filtering and sorting
+- Accessible forms
+- Confirmation dialogs
+- Loading states
+- Error states
+- Empty states
+- Success and failure feedback
+- Keyboard accessibility
+
+Avoid:
+
+- Excessive cards
+- Unnecessary gradients
+- Oversized headings
+- Excessive rounded corners
+- Decorative animations
+- Fake charts
+- Fake activity feeds
+- Fake student records presented as real
+- Buttons without actions
+
+Use charts only when they provide useful information.
+
+Ensure the system works on smaller screens without hiding essential functions.
+
+Use consistent design patterns across modules.
+
+---
+
+## 37. SECURITY, PRIVACY AND DATA PROTECTION
+
+Student information is confidential.
+
+Design the system with Uganda's Data Protection and Privacy Act, 2019, applicable regulations and relevant education-sector requirements in mind.
+
+The school must obtain appropriate professional compliance review before using real student data.
+
+### Security requirements
+
+- Role-based access control
+- Backend permission enforcement
+- Secure authentication
+- Strong password hashing
+- HTTPS in production
+- Secure session management
+- Input validation
+- SQL injection protection
+- Cross-site scripting protection
+- CSRF protection where applicable
+- Rate limiting
+- Secure file uploads
+- Restricted document access
+- Audit logging
+- Database backups
+- Secure environment variables
+- Access revocation
+- Session timeout
+- Account activity monitoring
+
+### Privacy requirements
+
+- Collect only necessary personal information.
+- Restrict sensitive student records.
+- Verify guardian relationships.
+- Record relevant consent and lawful processing information.
+- Support guardian access revocation.
+- Support correction requests for inaccurate personal data.
+- Establish appropriate data retention periods.
+- Restrict data exports.
+- Log sensitive record access.
+- Avoid exposing confidential information in application logs.
+- Protect health and safeguarding records.
+- Do not make religion or other sensitive personal information mandatory unless there is a lawful and necessary reason.
+
+### Audit logging
+
+Record:
+
+- User
+- Action
+- Module
+- Record affected
+- Date and time
+- Relevant before-and-after changes
+- IP address where appropriate
+- Approval details where applicable
+
+Log sensitive record access, changes, exports, printing, financial transactions and administrative actions.
+
+Do not allow ordinary users to edit or delete audit records.
+
+### Backup and recovery
+
+Document:
+
+- Database backup schedule
+- Backup retention
+- Recovery procedures
+- Restore testing
+- Access to backup files
+- Incident response
+- Data breach escalation
+
+A backup process is not complete until restoration has been tested.
+
+---
+
+## 38. INTEGRATIONS
+
+Design integrations so they can be added safely.
+
+Potential integrations:
+
+- Email delivery
+- SMS provider
+- MTN Mobile Money
+- Airtel Money
+- Bank payment services
+- Private document storage
+- Future GPS tracking
+- Education data exports
+
+For every integration:
+
+1. Identify the provider.
+2. Document required credentials.
+3. Build the server-side integration.
+4. Validate incoming and outgoing requests.
+5. Verify callbacks.
+6. Handle errors and retries.
+7. Log operational status without exposing secrets.
+8. Provide a clear configuration status.
+
+If credentials or authorization are unavailable, show that the integration is awaiting configuration.
+
+Never simulate successful payment, SMS delivery, GPS tracking or government integration.
+
+---
+
+## 39. DEMONSTRATION DATA
+
+Create realistic fictional demonstration data for development and testing.
+
+Include:
+
+- Sample students
+- Sample guardians
+- Sample teachers
+- Sample staff
+- Sample classes
+- Sample streams
+- Sample subjects
+- Sample timetables
+- Sample attendance records
+- Sample assessments
+- Sample marks
+- Sample report cards
+- Sample invoices
+- Sample payments
+- Sample expenses
+- Sample library books
+- Sample transport routes
+- Sample inventory
+- Sample assets
+
+Clearly identify demonstration records as DEMO.
+
+Never use real student personal information as test data.
+
+Create a safe reset mechanism that removes only demonstration records.
+
+The reset mechanism must never delete operational records.
+
+---
+
+## 40. TESTING AND QUALITY ASSURANCE
+
+The project is not complete because the interface looks good.
+
+Test the full application.
+
+### Authentication tests
+- A valid user can log in.
+- An invalid password is rejected.
+- Password reset works.
+- Deactivated users cannot log in.
+- Expired sessions are rejected.
+- Unauthorized API access is blocked.
+
+### Admission tests
+- An authorized user can create an application.
+- An application can be reviewed.
+- An application can be approved or rejected.
+- Enrollment creates a unique admission number.
+- Duplicate records are detected.
+- Guardians can be linked.
+- Enrollment history is maintained.
+
+### Attendance tests
+- A class teacher can mark attendance for an assigned class.
+- Duplicate attendance is prevented.
+- Attendance reports calculate correctly.
+- Corrections require authorization and a reason.
+- Unauthorized users cannot edit attendance.
+
+### Academic tests
+- Teachers can enter marks for assigned subjects.
+- Marks above the maximum are rejected.
+- Marks can be reviewed and approved.
+- Published results are visible only to authorized users.
+- Historical results remain available.
+- Grading rules follow configured settings.
+
+### Finance tests
+- An authorized bursar can create fee structures.
+- An invoice can be generated.
+- A cashier can record a payment.
+- A receipt is generated.
+- Partial payments update balances correctly.
+- Duplicate payment requests are prevented.
+- Payment reversals preserve history.
+- Refunds require appropriate authorization.
+- Reports reconcile with transaction records.
+
+### Parent and student tests
+- A parent can access only verified linked children.
+- A parent cannot access another student's records.
+- A student can access only their own records.
+- Revoked guardian access is enforced.
+- Unpublished results remain unavailable.
+
+### Library tests
+- A librarian can issue a book.
+- An unavailable copy cannot be issued.
+- Returned copies become available.
+- Overdue records are calculated correctly.
+
+### Transport and boarding tests
+- Students can be allocated to valid routes.
+- Vehicle capacity is enforced.
+- A bed cannot be allocated to two students.
+- Historical allocations remain available.
+
+### Inventory tests
+- Stock is reduced after an approved issue.
+- Stock cannot become negative through ordinary operations.
+- Every stock movement is recorded.
+- Purchase and goods-received records reconcile.
+
+### Security tests
+- Users cannot bypass permissions through direct API requests.
+- Users cannot access records by changing URL identifiers.
+- Cross-school access is blocked if multi-school support is enabled.
+- Sensitive documents are protected.
+- Sensitive health and welfare records are restricted.
+- Audit logs record important actions.
+
+### Technical tests
+
+Create:
+
+- Backend unit tests
+- Backend integration tests
+- API permission tests
+- Database integrity tests
+- Frontend component tests
+- Form validation tests
+- End-to-end workflow tests
+
+Use automated tests for critical workflows.
+
+Do not mark a feature as complete unless its important operations have been tested.
+
+---
+
+## 41. DEVELOPMENT EXECUTION PLAN
+
+Build the system in phases.
+
+Do not attempt to implement every module simultaneously without a working foundation.
+
+### PHASE 1 — PROJECT FOUNDATION
+
+- Inspect the entire existing project.
+- Review dependencies.
+- Review frontend and backend structure.
+- Review environment variables.
+- Review database configuration.
+- Establish project architecture.
+- Configure database.
+- Implement Prisma schema and migrations.
+- Implement authentication.
+- Implement roles and permissions.
+- Implement school settings.
+- Implement academic years, terms, classes, streams and subjects.
+- Build the main application layout.
+- Build role-specific navigation.
+
+**Phase 1 acceptance:** The application starts correctly, the database connects, administrators can authenticate, permissions work and school academic settings can be managed.
+
+### PHASE 2 — STUDENT AND ADMISSION MANAGEMENT
+
+- Admission applications
+- Application review
+- Student registration
+- Guardian management
+- Guardian verification
+- Enrollment history
+- Student profiles
+- Student documents
+- Transfers
+- Withdrawals
+- Promotions
+
+**Phase 2 acceptance:** A student can move through the admission process and become enrolled with a unique admission number and verified guardian relationships.
+
+### PHASE 3 — ATTENDANCE AND ACADEMICS
+
+- Student attendance
+- Staff attendance
+- Timetables
+- Teacher assignments
+- Lesson planning
+- Curriculum coverage
+- Assessments
+- Competency-based assessment support
+- Marks entry
+- Approval workflows
+- Report cards
+- Result publication
+
+**Phase 3 acceptance:** Teachers can manage assigned classes and subjects, attendance is stored correctly, marks can be reviewed and approved, and report cards can be generated.
+
+### PHASE 4 — FINANCE AND ACCOUNTING
+
+- Fee structures
+- Invoices
+- Payments
+- Receipts
+- Student statements
+- Family statements
+- Discounts
+- Bursaries
+- Refunds
+- Expenses
+- Cashbook
+- Bank accounts
+- Reconciliation
+- Financial reports
+
+**Phase 4 acceptance:** Financial transactions are accurate, balances reconcile, duplicate payments are prevented and sensitive financial permissions work.
+
+### PHASE 5 — SCHOOL OPERATIONS
+
+- Assignments
+- Library
+- Transport
+- Boarding
+- Inventory
+- Procurement
+- Suppliers
+- Assets
+- Facilities
+- Maintenance
+
+**Phase 5 acceptance:** The main operational workflows work with real database records and transaction-safe updates.
+
+### PHASE 6 — STAFF, COMMUNICATION AND WELFARE
+
+- Staff management
+- Departments
+- Staff leave
+- Notifications
+- Announcements
+- Parent portal
+- Student portal
+- Discipline
+- Safeguarding
+- Welfare
+- Restricted health records
+- School calendar
+
+**Phase 6 acceptance:** Role-specific users can perform their authorized operations and parents and students can access only their permitted information.
+
+### PHASE 7 — REPORTING, SECURITY AND PRODUCTION
+
+- Reporting centre
+- PDF and Excel exports
+- EMIS-readiness exports
+- Audit review
+- Security testing
+- Performance testing
+- Backup and recovery
+- Deployment
+- Documentation
+- User training materials
+
+**Phase 7 acceptance:** The system passes critical workflow and security tests, can be deployed, has documented recovery procedures and is ready for controlled school user acceptance testing.
+
+---
+
+## 42. DEPLOYMENT AND ENVIRONMENT CONFIGURATION
+
+Prepare the application for deployment.
+
+### Frontend
+- Build production frontend.
+- Configure Netlify.
+- Set the correct production API base URL.
+- Configure SPA routing redirects.
+- Configure environment variables.
+- Test production API connectivity.
+
+### Backend
+- Deploy to Render.
+- Configure environment variables.
+- Configure database connection.
+- Configure CORS for the approved frontend domain.
+- Configure production logging.
+- Configure health checks.
+- Configure file storage.
+- Configure database migrations.
+
+### Database
+- Use PostgreSQL.
+- Apply migrations safely.
+- Configure backups.
+- Verify database connectivity.
+- Test restoration.
+
+### Environment variables
+
+Create a `.env.example` file containing variable names and safe example placeholders only.
+
+Never commit real secrets.
+
+Do not use a localhost API URL in the production frontend.
+
+Ensure production builds use the correct environment variables.
+
+Document the difference between development, testing and production environments.
+
+---
+
+## 43. DOCUMENTATION AND HANDOVER
+
+Provide:
+
+- Project architecture documentation
+- Database schema documentation
+- API documentation
+- Installation guide
+- Environment variable guide
+- Development setup instructions
+- Deployment instructions
+- Database migration instructions
+- Backup and recovery guide
+- Administrator guide
+- Teacher guide
+- Bursar guide
+- Parent portal guide
+- Student portal guide
+- User role and permission guide
+- Integration setup guide
+- Troubleshooting guide
+
+Explain how the school can create its first administrator, configure academic years, create classes, register staff and begin admitting students.
+
+---
+
+## 44. STRICT DEVELOPMENT RULES
+
+Follow these rules throughout development.
+
+1. First inspect the complete existing project.
+2. Understand the existing code before modifying it.
+3. Do not destroy working code unnecessarily.
+4. Preserve existing useful functionality.
+5. Create a clear implementation plan.
+6. Implement the backend and database, not just the frontend.
+7. Use database migrations.
+8. Use real database records.
+9. Implement backend validation.
+10. Implement backend authorization.
+11. Use database transactions for critical operations.
+12. Do not use hardcoded dashboard statistics.
+13. Do not use localStorage as the primary database.
+14. Do not create non-functional buttons.
+15. Do not create fake charts or fake activity feeds.
+16. Do not leave important modules as placeholders.
+17. Do not silently swallow errors.
+18. Do not expose secrets or private student information.
+19. Do not silently delete financial, academic or attendance history.
+20. Do not claim integrations are working when they are awaiting credentials.
+21. Do not claim tests passed unless they were actually executed.
+22. Do not claim deployment succeeded unless it was verified.
+23. Do not duplicate existing functionality without a reason.
+24. Do not create unnecessary files or dependencies.
+25. Keep the application responsive and accessible.
+26. Maintain consistent naming and coding standards.
+27. Document important technical decisions.
+28. Fix errors before moving to the next phase.
+
+### Important AI agent execution instruction
+
+Before writing code:
+
+- Inspect the existing project.
+- Identify what already works.
+- Identify missing functionality.
+- Identify technical risks.
+- Present a phased implementation plan.
+- Identify database changes.
+- Identify any configuration or credentials required.
+
+Then begin implementation.
+
+Do not stop after producing the plan unless a genuinely necessary decision or missing credential prevents progress.
+
+For each phase:
+
+1. Implement the database changes.
+2. Implement backend services and APIs.
+3. Implement permissions.
+4. Implement the frontend.
+5. Connect the frontend to the backend.
+6. Test the workflow.
+7. Fix discovered errors.
+8. Document what is complete.
+9. Identify remaining work.
+
+If the project becomes too large for one development session, preserve progress and provide a clear continuation report containing completed work, remaining work, known bugs and the next exact implementation step.
+
+Never rewrite the entire project simply because a development session has ended.
+
+---
+
+## 45. FINAL ACCEPTANCE CRITERIA
+
+The system can only be considered ready for school user acceptance testing when the following conditions are met.
+
+### Functional completeness
+- All implemented modules have working backend operations.
+- All important forms validate input.
+- All important buttons perform real actions.
+- Data is saved persistently.
+- Related modules exchange accurate information.
+- Role-specific pages and operations work correctly.
+
+### Data integrity
+- Student records remain consistent.
+- Academic history is preserved.
+- Financial balances reconcile.
+- Attendance records are auditable.
+- Inventory movements are accurate.
+- Duplicate transactions are prevented.
+
+### Security
+- Authentication works.
+- Permissions are enforced by the backend.
+- Parent and student access is restricted correctly.
+- Sensitive records are protected.
+- Audit logs are operational.
+- File access is controlled.
+
+### Quality
+- Critical automated tests pass.
+- Important workflows have been tested end to end.
+- No known critical security issue remains unresolved.
+- Error states are handled.
+- Responsive layouts work.
+- Documentation is available.
+
+### Production readiness
+- Production configuration is documented.
+- Database migrations are verified.
+- Backups and restoration have been tested.
+- Deployment is verified.
+- External integrations are accurately marked as active or awaiting configuration.
+- School staff can be trained to use the system.
+
+### Final status report
+
+At the end of development, provide an honest report with:
+
+1. Completed modules.
+2. Partially completed modules.
+3. Modules not yet implemented.
+4. Database tables and migrations created.
+5. API endpoints implemented.
+6. Automated tests executed and their results.
+7. Security checks completed.
+8. Deployment status.
+9. Integrations awaiting credentials or authorization.
+10. Known bugs and limitations.
+11. Recommended next steps before real student data is entered.
+
+Do not describe the application as fully production-ready merely because it builds successfully.
+
+The final system must be demonstrated through real end-to-end workflows and reviewed by the school before operational use.
+
+---
+
+# FINAL PROJECT OBJECTIVE
+
+Deliver a secure, reliable, professional and maintainable **Mwanaweika School Management System** that can support the real administrative, academic, financial and operational needs of a Ugandan school.
+
+Prioritize correctness, security, data integrity, usability and maintainability over the number of screens or the speed at which code is generated.
+
+Build a school management system that works in practice, not just one that looks impressive in screenshots.
